@@ -6,6 +6,9 @@
 Python wrapper for setns Linux syscall.\
 See [setns manpage][man_setns] for more details.
 
+###IMPORTANT!
+`setns` requires execution from **ROOT**!
+
 ## Requirements
  * Python 3.6+
 

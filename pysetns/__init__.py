@@ -11,7 +11,7 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)
@@ -110,10 +110,12 @@ class Namespace:
                     self.parent_ns_files.pop(ns)
                     self.namespaces &= ~ns
         if not self.namespaces:
+            self.exit(0)
             return
         if self.do_fork:
             self.fork = os.fork()
             if self.fork:
+                self.exit(0)
                 return
             elif self.namespaces & NS_USER:
                 os.setgid(self.target_gid)
