@@ -11,7 +11,7 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)
@@ -39,11 +39,7 @@ _OFLAGS = os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY | getattr(os, 'O_CLOEXEC', 0
 
 
 def get_ns_string(ns_types: int) -> str:
-    res = []
-    for k, v in _NS_NAMES.items():
-        if k & ns_types:
-            res.append(v)
-    return '|'.join(res)
+    return '|'.join(v for k, v in _NS_NAMES.items() if k & ns_types)
 
 
 class UserNamespaceWarning(Warning):
@@ -58,7 +54,7 @@ class Namespace:
                  target_gid: int = 0, target_uid: int = 0, do_fork: int = False, true_user: int = False):
         if (isinstance(target_pid, int) or target_pid.isdigit()) and int(target_pid) <= 0:
             raise ValueError('Invalid target PID')
-        if not NS_ALL & ns_types:
+        if not (NS_ALL & ns_types):
             raise TypeError('Invalid namespace types')
 
         self.errors = {}
@@ -119,10 +115,9 @@ class Namespace:
             self.fork = os.fork()
             if self.fork:
                 return
-            else:
-                if self.namespaces & NS_USER:
-                    os.setgid(self.target_gid)
-                    os.setuid(self.target_uid)
+            elif self.namespaces & NS_USER:
+                os.setgid(self.target_gid)
+                os.setuid(self.target_uid)
         exitcode = 0
         try:
             exitcode = target(*args, **kwargs)
