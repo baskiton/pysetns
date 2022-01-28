@@ -26,8 +26,8 @@ def foo(ns: pysetns.Namespace):
 
 
 def bar(pid, namespaces):
-    ns = pysetns.Namespace(pid, namespaces)
-    ns.enter(foo, args=(ns,))
+    ns = pysetns.Namespace(pid, namespaces, keep_caps=True)
+    ns.enter(foo, ns)
     if ns.errors:
         print(f'NS errors: {ns.errors}')
     return ns.retry

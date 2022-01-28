@@ -11,7 +11,7 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.1.4'
+__version__ = '0.2.0'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)
@@ -51,7 +51,8 @@ class UserNamespaceWarning(Warning):
 
 class Namespace:
     def __init__(self, target_pid: Union[int, str], ns_types: int = NS_ALL,
-                 target_gid: int = 0, target_uid: int = 0, do_fork: int = False, true_user: int = False):
+                 target_gid: int = 0, target_uid: int = 0, do_fork: int = False, true_user: int = False,
+                 keep_caps: bool = False):
         if (isinstance(target_pid, int) or target_pid.isdigit()) and int(target_pid) <= 0:
             raise ValueError('Invalid target PID')
         if not (NS_ALL & ns_types):
@@ -64,6 +65,7 @@ class Namespace:
         self.target_gid = target_gid or proc_st.st_gid
         self.target_uid = target_uid or proc_st.st_uid
         self.true_user = true_user
+        self.keep_caps = keep_caps
 
         self.parent_ns_files = {nstype: self._get_nsfd('self', name)
                                 for nstype, name in _NS_NAMES.items()
@@ -83,8 +85,8 @@ class Namespace:
         self.fork = -1
 
     def enter(self, target: Callable, *args, **kwargs) -> None:
-        if not isinstance(target, Callable):
-            raise TypeError('target is not callable')
+        if not callable(target):
+            raise TypeError('`target` is not callable')
 
         for ns, fd in self.target_ns_files.copy().items():
             if ns == NS_USER and not self.true_user:
@@ -112,8 +114,15 @@ class Namespace:
                 self.exit(0)
                 return
             elif self.namespaces & NS_USER:
-                os.setgid(self.target_gid)
-                os.setuid(self.target_uid)
+                if self.keep_caps:
+                    try:
+                        ext.setguid_keep_cap(self.target_gid, self.target_uid)
+                    except OSError as e:
+                        self.errors[NS_USER] = e
+                        self.exit(e.errno)
+                else:
+                    os.setgid(self.target_gid)
+                    os.setuid(self.target_uid)
         exitcode = 0
         try:
             exitcode = target(*args, **kwargs)
