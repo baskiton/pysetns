@@ -11,7 +11,7 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)
@@ -72,25 +72,19 @@ class Namespace:
             self._close_fds(self.parent_ns_files.pop(NS_USER))
         self.target_ns_files = {nstype: self._get_nsfd(target_pid, name)
                                 for nstype, name in _NS_NAMES.items()
-                                if nstype in self.parent_ns_files
-                                and self.parent_ns_files[nstype] != -1}
+                                if self.parent_ns_files.get(nstype, -1) != -1}
         self.namespaces = ns_types & NS_USER
         for t_nstype, t_fd in self.target_ns_files.items():
             if t_fd != -1:
                 self.namespaces |= t_nstype
             else:
-                for p_nstype, p_fd in self.parent_ns_files.items():
-                    if p_nstype == t_nstype:
-                        self._close_fds(p_fd)
-                        break
+                self._close_fds(self.parent_ns_files.setdefault(t_nstype, -1))
         self.do_fork = do_fork or self.namespaces & (NS_USER | NS_PID)
         self.fork = -1
 
-    def enter(self, target: Callable, args=(), kwargs={}) -> None:
+    def enter(self, target: Callable, *args, **kwargs) -> None:
         if not isinstance(target, Callable):
             raise TypeError('target is not callable')
-        args = tuple(args)
-        kwargs = dict(kwargs)
 
         for ns, fd in self.target_ns_files.copy().items():
             if ns == NS_USER and not self.true_user:
@@ -166,14 +160,20 @@ class Namespace:
 
     @staticmethod
     def _get_nsfd(pid: Union[int, str], ns_str: str) -> int:
-        return os.open(f'/proc/{pid}/ns/{ns_str}', _OFLAGS)
+        try:
+            return os.open(f'/proc/{pid}/ns/{ns_str}', _OFLAGS)
+        except OSError:
+            return -1
 
     @staticmethod
     def _disallow_user_ns(target_pid) -> bool:
         # It is not permitted to use setns(2) to reenter the caller's current user namespace
-        parent_ino = os.stat(f'/proc/{os.getpid()}/ns/user').st_ino
-        target_ino = os.stat(f'/proc/{target_pid}/ns/user').st_ino
-        return parent_ino == target_ino
+        try:
+            parent_ino = os.stat(f'/proc/{os.getpid()}/ns/user').st_ino
+            target_ino = os.stat(f'/proc/{target_pid}/ns/user').st_ino
+            return parent_ino == target_ino
+        except:
+            raise OSError(errno.ESRCH, os.strerror(errno.ESRCH))
 
     @staticmethod
     def _close_fds(fds: Union[int, Iterable]) -> None:
