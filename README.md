@@ -3,6 +3,9 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pysetns)](https://pypi.org/project/pysetns/)
 [![PyPI - License](https://img.shields.io/pypi/l/pysetns)](https://github.com/baskiton/pysetns/blob/main/LICENSE)
 
+[![build](https://github.com/baskiton/pysetns/actions/workflows/build.yml/badge.svg)](https://github.com/baskiton/pysetns/actions/workflows/build.yml)
+[![upload](https://github.com/baskiton/pysetns/actions/workflows/pypi-upload.yml/badge.svg)](https://github.com/baskiton/pysetns/actions/workflows/pypi-upload.yml)
+
 Python wrapper for setns Linux syscall.\
 See [setns manpage][man_setns] for more details.
 
