@@ -51,7 +51,8 @@ class UserNamespaceWarning(Warning):
 
 class Namespace:
     def __init__(self, target_pid: Union[int, str], ns_types: int = NS_ALL,
-                 target_gid: int = 0, target_uid: int = 0, do_fork: int = False, true_user: int = False,
+                 target_gid: int = None, target_uid: int = None,
+                 do_fork: bool = False, true_user: bool = False,
                  keep_caps: bool = False):
         if (isinstance(target_pid, int) or target_pid.isdigit()) and int(target_pid) <= 0:
             raise ValueError('Invalid target PID')
@@ -62,8 +63,8 @@ class Namespace:
         self.retry = False
         self.target_pid = target_pid
         proc_st = os.stat(f'/proc/{self.target_pid}')
-        self.target_gid = target_gid or proc_st.st_gid
-        self.target_uid = target_uid or proc_st.st_uid
+        self.target_gid = proc_st.st_gid if (target_gid is None) else target_gid
+        self.target_uid = proc_st.st_uid if (target_uid is None) else target_uid
         self.true_user = true_user
         self.keep_caps = keep_caps
 
