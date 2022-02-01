@@ -11,7 +11,7 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)
