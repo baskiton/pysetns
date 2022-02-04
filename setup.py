@@ -40,7 +40,7 @@ setup(
     description='Python wrapper for setns Linux syscall.',
     long_description=get_file('README.md'),
     long_description_content_type='text/markdown',
-    packages=find_packages(),
+    packages=find_packages(exclude=('docs', 'examples')),
     install_requires=[
     ],
     ext_modules=[ext],

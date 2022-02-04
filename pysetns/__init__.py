@@ -11,7 +11,7 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.2.1'
+__version__ = '0.2.2a0'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)
@@ -39,6 +39,10 @@ _OFLAGS = os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY | getattr(os, 'O_CLOEXEC', 0
 
 
 def get_ns_string(ns_types: int) -> str:
+    """
+    Represents namespace types `ns_types` in string view
+    """
+
     return '|'.join(v for k, v in _NS_NAMES.items() if k & ns_types)
 
 
@@ -50,12 +54,44 @@ class UserNamespaceWarning(Warning):
 
 
 class Namespace:
+    """
+    Namespace object
+    """
+
     def __init__(self, target_pid: Union[int, str], ns_types: int = NS_ALL,
                  target_gid: int = None, target_uid: int = None,
                  do_fork: bool = False, true_user: bool = False,
                  keep_caps: bool = False):
-        if (isinstance(target_pid, int) or target_pid.isdigit()) and int(target_pid) <= 0:
-            raise ValueError('Invalid target PID')
+        """
+        :param target_pid: The pid of the process whose namespace you want to access
+        :param ns_types: Namespace types to be accessed. These are bitwise. :const:`NS_ALL` included all of this:
+
+            - :const:`NS_TIME` - time namespace (since Linux 5.8)
+            - :const:`NS_MNT` - mount namespace group (since Linux 3.8)
+            - :const:`NS_CGROUP` - cgroup namespace (since Linux 4.6)
+            - :const:`NS_UTS` - utsname namespace (since Linux 3.0)
+            - :const:`NS_IPC` - ipc namespace (since Linux 3.0)
+            - :const:`NS_USER` - user namespace (since Linux 3.8)
+            - :const:`NS_PID` - pid namespace (since Linux 3.8)
+            - :const:`NS_NET` - network namespace (since Linux 3.0)
+
+        :param target_gid:
+        :param target_uid: The GID and UID of the user you want to access in :const:`NS_USER` as.
+            If None, the GID and UID of the process owner will be used
+        :param do_fork: Enter into the namespace in a separate process. If `ns_types` includes :const:`NS_USER`
+            or :const:`NS_PID`, entering into the namespace will be done in a separate process
+            and `do_fork` value is ignored
+        :param true_user: If False (default), entering into :const:`NS_USER` will be done by simply switching
+            to target GID and UID (`target_gid`, `target_uid`), otherwise through a system call,
+            but then returning from the namespace will not be possible and the program will need to be terminated,
+            and in this case the :class:`UserNamespaceWarning` exception will be raised
+        :param keep_caps: Preserve root capabilities if you need to perform an action on behalf of a user
+            with administrator rights. Only relevant if `ns_types` includes :const:`NS_USER`
+
+        :raises FileNotFoundError, OSError: if `target_pid` is not valid
+        :raises TypeError: if `ns_types` is not valid
+        """
+
         if not (NS_ALL & ns_types):
             raise TypeError('Invalid namespace types')
 
@@ -86,6 +122,18 @@ class Namespace:
         self.fork = -1
 
     def enter(self, target: Callable, *args, **kwargs) -> None:
+        """
+        Enter into **namespace** and execute `target` function with its `args` and `kwargs`.
+        Exiting namespaces will happen automatically. But if this needs to be done inside the `target` function,
+        pass the **namespace** object as one of the parameters to it and call the :func:`Namespace.exit` method.
+        If an error occurs while entering into **namespace**, it will be written to the ``Namespace.errors`` attribute
+        in the format ``{ns_type: error}``, and if it was not the only `ns_type`, work will continue.
+        Errors caused by the operation of the `target` function will be ignored, so take care of them yourself.
+
+        :raise: :class:`UserNamespaceWarning` on exiting when `true_user` parameter of the
+            :class:`Namespace` is ``True``
+        """
+
         if not callable(target):
             raise TypeError('`target` is not callable')
 
@@ -131,6 +179,14 @@ class Namespace:
             self.exit(exitcode)
 
     def exit(self, errcode: int = 0) -> None:
+        """
+        Exit from **namespace** and set the `errcode` if required. You usually don't need to call this method
+        yourself. If the `errcode` is set to 11 (:const:`EAGAIN`), the ``Namespace.retry`` attribute
+        will be set to ``True``.
+
+        :raise: :class:`UserNamespaceWarning` when `true_user` parameter of the :class:`Namespace` is ``True``
+        """
+
         uerr = 0
         if self.do_fork and self.fork != -1:
             if self.fork:
