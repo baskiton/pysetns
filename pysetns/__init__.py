@@ -234,11 +234,17 @@ class Namespace:
     @staticmethod
     def _disallow_user_ns(target_pid) -> bool:
         # It is not permitted to use setns(2) to reenter the caller's current user namespace
-        try:
-            parent_ino = os.stat(f'/proc/{os.getpid()}/ns/user').st_ino
-            target_ino = os.stat(f'/proc/{target_pid}/ns/user').st_ino
-            return parent_ino == target_ino
-        except:
+        pp = f'/proc/{os.getpid()}'
+        tp = f'/proc/{target_pid}'
+        if os.path.isdir(pp) and os.path.isdir(tp):
+            try:
+                parent_ino = os.stat(os.path.join(pp, 'ns/user')).st_ino
+                target_ino = os.stat(os.path.join(tp, 'ns/user')).st_ino
+                return parent_ino == target_ino
+            except OSError:
+                # user namespace is not exist. disallow
+                return True
+        else:
             raise OSError(errno.ESRCH, os.strerror(errno.ESRCH))
 
     @staticmethod
