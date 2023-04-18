@@ -6,7 +6,7 @@ import sys
 from setuptools import find_packages, setup, Extension
 
 
-MINIMAL_PY_VERSION = (3, 6)
+MINIMAL_PY_VERSION = (3, 8)
 if sys.version_info < MINIMAL_PY_VERSION:
     raise RuntimeError('This app works only with Python {}+'.format('.'.join(map(str, MINIMAL_PY_VERSION))))
 
@@ -51,7 +51,7 @@ setup(
         'Topic :: System :: Operating System Kernels :: Linux',
     ],
     keywords='linux kernel namespace setns',
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     package_data={
         '': ['examples/*']
     }

@@ -3,8 +3,8 @@
 [![downloads](https://img.shields.io/pypi/dm/pysetns?logo=python&logoColor=white)](https://pypi.org/project/pysetns/)
 [![license](https://img.shields.io/pypi/l/pysetns?logo=open-source-initiative&logoColor=white)](https://github.com/baskiton/pysetns/blob/main/LICENSE)
 
-[![build](https://img.shields.io/github/workflow/status/baskiton/pysetns/build?logo=github)](https://github.com/baskiton/pysetns/actions/workflows/build.yml)
-[![upload](https://img.shields.io/github/workflow/status/baskiton/pysetns/upload?label=upload&logo=github)](https://github.com/baskiton/pysetns/actions/workflows/pypi-upload.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/baskiton/pysetns/build.yml?logo=github)](https://github.com/baskiton/pysetns/actions/workflows/build.yml)
+[![upload](https://img.shields.io/github/actions/workflow/status/baskiton/pysetns/pypi-upload.yml?label=upload&logo=github)](https://github.com/baskiton/pysetns/actions/workflows/pypi-upload.yml)
 [![docs](https://img.shields.io/readthedocs/pysetns?logo=readthedocs&logoColor=white)][documentation]
 
 `pysetns` - is a Python wrapper for the Linux `setns` system call. \
@@ -16,7 +16,7 @@ To detail see the [documentation][documentation]
 `setns` required execution from **ROOT**!
 
 ## Requirements
- * Python 3.6+
+ * Python 3.8+
 
 ## Installing
 ### Using PIP
