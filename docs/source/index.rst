@@ -18,10 +18,10 @@ Welcome to pysetns's documentation!
 .. image:: https://img.shields.io/pypi/l/pysetns?logo=open-source-initiative&logoColor=white
    :alt: PyPI - License
    :target: https://github.com/baskiton/pysetns/blob/main/LICENSE
-.. image:: https://img.shields.io/github/workflow/status/baskiton/pysetns/build?label=build&logo=github
+.. image:: https://img.shields.io/github/actions/workflow/status/baskiton/pysetns/build.yml?logo=github
    :alt: GitHub Workflow Status
    :target: https://github.com/baskiton/pysetns/actions/workflows/build.yml
-.. image:: https://img.shields.io/github/workflow/status/baskiton/pysetns/upload?label=upload&logo=github
+.. image:: https://img.shields.io/github/actions/workflow/status/baskiton/pysetns/pypi-upload.yml?label=upload&logo=github
    :alt: GitHub Workflow Status
    :target: https://github.com/baskiton/pysetns/actions/workflows/pypi-upload.yml
 .. image:: https://img.shields.io/readthedocs/pysetns?logo=readthedocs&logoColor=white
@@ -34,7 +34,7 @@ Welcome to pysetns's documentation!
    `man setns <https://man7.org/linux/man-pages/man2/setns.2.html>`_ for an introduction to ``setns`` and namespaces.
 
 .. note::
-   Required ``python 3.6+``
+   Required ``python 3.8+``
 
 .. warning::
     Required execution from **ROOT**
