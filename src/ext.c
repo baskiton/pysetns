@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#define Py_LIMITED_API 0x03080000f0
 #include <Python.h>
 #include <sched.h>
 #include <linux/sched.h>

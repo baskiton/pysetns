@@ -24,6 +24,7 @@ def get_version():
 ext = Extension(
     'pysetns.ext',
     sources=['src/ext.c'],
+    py_limited_api=True,
 )
 
 setup(
