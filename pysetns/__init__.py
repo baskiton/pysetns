@@ -1,6 +1,6 @@
 # coding: utf-8
 
-__all__ = ('__version__', 'NS_TIME', 'NS_MNT', 'NS_CGROUP', 'NS_UTS',
+__all__ = ('NS_TIME', 'NS_MNT', 'NS_CGROUP', 'NS_UTS',
            'NS_IPC', 'NS_USER', 'NS_PID', 'NS_NET', 'NS_ALL',
            'UserNamespaceWarning', 'Namespace', 'get_ns_string')
 
@@ -11,7 +11,6 @@ from typing import Callable, Union, Iterable
 
 from . import ext
 
-__version__ = '0.2.3.1'
 
 NS_TIME = ext.CLONE_NEWTIME     # time namespace (since Linux 5.8)
 NS_MNT = ext.CLONE_NEWNS        # mount namespace group (since Linux 3.8)

@@ -27,9 +27,18 @@ ext = Extension(
     py_limited_api=True,
 )
 
+add_opts = {'setup_requires': []}
+if sys.version_info >= (3, 7):
+    add_opts['setup_requires'].append('setuptools-git-versioning')
+    add_opts['setuptools-git-versioning'] = {
+        'enabled': True,
+        'template': '{tag}.{ccount}',
+        'dev_template': '{tag}.{ccount}',
+        'dirty_template': '{tag}.{ccount}',
+    }
+
 setup(
     name='pysetns',
-    version=get_version(),
     url='https://github.com/baskiton/pysetns',
     project_urls={
         'Source': 'https://github.com/baskiton/pysetns',
@@ -55,5 +64,6 @@ setup(
     python_requires='>=3.8',
     package_data={
         '': ['examples/*']
-    }
+    },
+    **add_opts,
 )

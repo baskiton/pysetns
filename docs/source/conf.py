@@ -16,9 +16,8 @@
 
 import datetime
 
+from pkg_resources import get_distribution
 from pip._vendor.pkg_resources import parse_version
-
-import pysetns
 
 
 # -- Project information -----------------------------------------------------
@@ -27,11 +26,11 @@ project = 'pysetns'
 author = 'baskiton'
 copyright = f'{datetime.datetime.now().year}, {author}'
 
-# The short X.Y version
-version = parse_version(pysetns.__version__).base_version
-
 # The full version, including alpha/beta/rc tags
-release = pysetns.__version__
+release = get_distribution(project).version
+
+# The short X.Y version
+version = parse_version(release).base_version
 
 
 # -- General configuration ---------------------------------------------------
