@@ -1,24 +1,16 @@
 #!/usr/bin/env python3
 
-import pathlib
+import os
 import sys
 
 from setuptools import find_packages, setup, Extension
 
 
-MINIMAL_PY_VERSION = (3, 8)
-if sys.version_info < MINIMAL_PY_VERSION:
-    raise RuntimeError('This app works only with Python {}+'.format('.'.join(map(str, MINIMAL_PY_VERSION))))
+_cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_file(rel_path):
-    return (pathlib.Path(__file__).parent / rel_path).read_text('utf-8')
-
-
-def get_version():
-    for line in get_file('pysetns/__init__.py').splitlines():
-        if line.startswith('__version__'):
-            return line.split()[2][1:-1]
+def get_file_content(rel_path):
+    return open(os.path.join(_cur_dir, rel_path)).read()
 
 
 ext = Extension(
@@ -30,7 +22,7 @@ ext = Extension(
 add_opts = {'setup_requires': []}
 if sys.version_info >= (3, 7):
     add_opts['setup_requires'].append('setuptools-git-versioning')
-    add_opts['setuptools-git-versioning'] = {
+    add_opts['setuptools_git_versioning'] = {
         'enabled': True,
         'template': '{tag}.{ccount}',
         'dev_template': '{tag}.{ccount}',
@@ -48,7 +40,7 @@ setup(
     author='Alexander Baskikh',
     author_email='baskiton@gmail.com',
     description='Python wrapper for setns Linux syscall.',
-    long_description=get_file('README.md'),
+    long_description=get_file_content('README.md'),
     long_description_content_type='text/markdown',
     packages=find_packages(exclude=('docs', 'examples')),
     install_requires=[
@@ -61,7 +53,7 @@ setup(
         'Topic :: System :: Operating System Kernels :: Linux',
     ],
     keywords='linux kernel namespace setns',
-    python_requires='>=3.8',
+    python_requires='>=3',
     package_data={
         '': ['examples/*']
     },
