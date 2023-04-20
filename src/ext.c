@@ -1,9 +1,10 @@
 #define _GNU_SOURCE
 #define Py_LIMITED_API 0x03080000f0
 #include <Python.h>
-#include <sched.h>
+#include <fcntl.h>
 #include <linux/sched.h>
 #include <linux/capability.h>
+#include <sched.h>
 #include <sys/prctl.h>
 #include <syscall.h>
 
@@ -11,7 +12,8 @@
 PyDoc_STRVAR(ext__doc__,
 "Wrapper for setns syscall.\n");
 
-#define EXT_ADD_ZERO_MACRO(name) PyModule_AddIntConstant(module, #name, 0)
+#define NS_INVALID 0
+#define EXT_SET_INVALID_MACRO(name) PyModule_AddIntConstant(module, #name, NS_INVALID)
 #define EXT_ADD_INT_MACRO(name) PyModule_AddIntConstant(module, #name, name)
 
 PyDoc_STRVAR(setns__doc__,
@@ -124,14 +126,17 @@ PyInit_ext(void)
         return NULL;
     }
 
+    EXT_ADD_INT_MACRO(O_CLOEXEC);
+    EXT_ADD_INT_MACRO(NS_INVALID);
+
 #ifdef CLONE_NEWIPC     // since Linux 3.0
     EXT_ADD_INT_MACRO(CLONE_NEWIPC);
     EXT_ADD_INT_MACRO(CLONE_NEWNET);
     EXT_ADD_INT_MACRO(CLONE_NEWUTS);
 #else
-    EXT_ADD_ZERO_MACRO(CLONE_NEWIPC);
-    EXT_ADD_ZERO_MACRO(CLONE_NEWNET);
-    EXT_ADD_ZERO_MACRO(CLONE_NEWUTS);
+    EXT_SET_INVALID_MACRO(CLONE_NEWIPC);
+    EXT_SET_INVALID_MACRO(CLONE_NEWNET);
+    EXT_SET_INVALID_MACRO(CLONE_NEWUTS);
 #endif // CLONE_NEWIPC (since Linux 3.0)
 
 #ifdef CLONE_NEWNS      // since Linux 3.8
@@ -139,21 +144,21 @@ PyInit_ext(void)
     EXT_ADD_INT_MACRO(CLONE_NEWPID);
     EXT_ADD_INT_MACRO(CLONE_NEWUSER);
 #else
-    EXT_ADD_ZERO_MACRO(CLONE_NEWNS);
-    EXT_ADD_ZERO_MACRO(CLONE_NEWPID);
-    EXT_ADD_ZERO_MACRO(CLONE_NEWUSER);
+    EXT_SET_INVALID_MACRO(CLONE_NEWNS);
+    EXT_SET_INVALID_MACRO(CLONE_NEWPID);
+    EXT_SET_INVALID_MACRO(CLONE_NEWUSER);
 #endif // CLONE_NEWNS (since Linux 3.8)
 
 #ifdef CLONE_NEWCGROUP  // since Linux 4.6
     EXT_ADD_INT_MACRO(CLONE_NEWCGROUP);
 #else
-    EXT_ADD_ZERO_MACRO(CLONE_NEWCGROUP);
+    EXT_SET_INVALID_MACRO(CLONE_NEWCGROUP);
 #endif // CLONE_NEWCGROUP (since Linux 4.6)
 
 #ifdef CLONE_NEWTIME    // since Linux 5.8
     EXT_ADD_INT_MACRO(CLONE_NEWTIME);
 #else
-    EXT_ADD_ZERO_MACRO(CLONE_NEWTIME);
+    EXT_SET_INVALID_MACRO(CLONE_NEWTIME);
 #endif // CLONE_NEWTIME (since Linux 5.8)
 
     return module;

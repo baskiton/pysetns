@@ -34,8 +34,10 @@ _NS_NAMES = {
     NS_USER: 'user',
 }
 
-_OFLAGS = os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY | getattr(os, 'O_CLOEXEC', 0o2000000)
+if NS_INVALID in _NS_NAMES:
+    _NS_NAMES.pop(NS_INVALID)
 
+_OFLAGS = os.O_RDONLY | os.O_NONBLOCK | os.O_NOCTTY | ext.O_CLOEXEC
 
 def get_ns_string(ns_types: int) -> str:
     """
