@@ -34,7 +34,9 @@ Welcome to pysetns's documentation!
    `man setns <https://man7.org/linux/man-pages/man2/setns.2.html>`_ for an introduction to ``setns`` and namespaces.
 
 .. note::
-   Required ``python 3.8+``
+   Required:
+      * Linux 3.0+
+      * Python 3
 
 .. warning::
     Required execution from **ROOT**

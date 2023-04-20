@@ -13,10 +13,14 @@ def get_file_content(rel_path):
     return open(os.path.join(_cur_dir, rel_path)).read()
 
 
+ext_opts = {}
+if sys.version_info >= (3, 2):
+    ext_opts['py_limited_api'] = True
+
 ext = Extension(
     'pysetns.ext',
     sources=['src/ext.c'],
-    py_limited_api=True,
+    **ext_opts
 )
 
 add_opts = {'setup_requires': []}

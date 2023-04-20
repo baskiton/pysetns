@@ -16,7 +16,8 @@ To detail see the [documentation][documentation]
 `setns` required execution from **ROOT**!
 
 ## Requirements
- * Python 3.8+
+ * Linux 3.0+
+ * Python 3
 
 ## Installing
 ### Using PIP
